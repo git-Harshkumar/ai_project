@@ -5,7 +5,12 @@ import pandas as pd
 import os
 
 app = Flask(__name__)
-CORS(app)  # Enable CORS for React frontend
+
+# Configure CORS for production
+# Allow requests from frontend URL (set via environment variable)
+frontend_url = os.getenv('FRONTEND_URL', 'http://localhost:5173')
+CORS(app, resources={r"/api/*": {"origins": [frontend_url, "http://localhost:5173"]}})
+
 
 # Initialize predictor
 predictor = LoanPredictor()
@@ -138,4 +143,6 @@ def feature_info():
         }), 500
 
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    port = int(os.getenv('PORT', 5000))
+    app.run(debug=False, host='0.0.0.0', port=port)
+

@@ -11,7 +11,7 @@ function App() {
     <div className="app">
       <div className="container">
         <header className="header">
-          <h1>🏦 Loan Prediction System</h1>
+          <h1>Loan Prediction System</h1>
           <p>AI-Powered Loan Approval Prediction using Machine Learning</p>
         </header>
 
@@ -20,19 +20,19 @@ function App() {
             className={`tab-button ${activeTab === 'predict' ? 'active' : ''}`}
             onClick={() => setActiveTab('predict')}
           >
-            🔮 Single Prediction
+            Single Prediction
           </button>
           <button
             className={`tab-button ${activeTab === 'batch' ? 'active' : ''}`}
             onClick={() => setActiveTab('batch')}
           >
-            📊 Batch Prediction
+            Batch Prediction
           </button>
           <button
             className={`tab-button ${activeTab === 'dashboard' ? 'active' : ''}`}
             onClick={() => setActiveTab('dashboard')}
           >
-            📈 Model Dashboard
+            Model Dashboard
           </button>
         </div>
 
@@ -43,23 +43,23 @@ function App() {
         </div>
 
         <footer style={{
-          marginTop: '4rem',
-          padding: '2rem 0',
+          marginTop: '3rem',
+          padding: '1.5rem 0',
           textAlign: 'center',
-          borderTop: '1px solid rgba(255, 255, 255, 0.1)'
+          borderTop: '1px solid #e0e0e0'
         }}>
           <p style={{
-            color: 'var(--text-secondary)',
-            fontSize: '0.95rem',
+            color: '#7f8c8d',
+            fontSize: '0.9rem',
             marginBottom: '0.5rem'
           }}>
-            Built with ❤️ using React, Flask, and scikit-learn
+            Built with React, Flask, and scikit-learn
           </p>
           <p style={{
-            color: 'var(--text-tertiary)',
+            color: '#95a5a6',
             fontSize: '0.85rem'
           }}>
-            © 2026 Loan Prediction System. Powered by Machine Learning.
+            © 2026 Loan Prediction System
           </p>
         </footer>
       </div>
