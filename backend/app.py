@@ -9,7 +9,19 @@ app = Flask(__name__)
 # Configure CORS for production
 # Allow requests from frontend URL (set via environment variable)
 frontend_url = os.getenv('FRONTEND_URL', 'http://localhost:5173')
-CORS(app, resources={r"/api/*": {"origins": [frontend_url, "http://localhost:5173"]}})
+# Support multiple frontend URLs (comma-separated)
+allowed_origins = [
+    frontend_url,
+    "http://localhost:5173",
+    "https://ai-project-2-3bsa.onrender.com"  # Add your deployed frontend URL
+]
+CORS(app, resources={
+    r"/api/*": {
+        "origins": allowed_origins,
+        "methods": ["GET", "POST", "OPTIONS"],
+        "allow_headers": ["Content-Type"]
+    }
+})
 
 
 # Initialize predictor
