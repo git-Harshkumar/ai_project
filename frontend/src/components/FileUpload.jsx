@@ -51,7 +51,7 @@ function FileUpload() {
             const formData = new FormData();
             formData.append('file', file);
 
-            const response = await fetch(`${API_URL}/predict-batch`, {
+            const response = await fetch(`${API_URL}/api/predict-batch`, {
                 method: 'POST',
                 body: formData,
             });

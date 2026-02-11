@@ -16,10 +16,11 @@ allowed_origins = [
     "https://ai-project-2-3bsa.onrender.com"  # Add your deployed frontend URL
 ]
 CORS(app, resources={
-    r"/api/*": {
+    r"/*": {
         "origins": allowed_origins,
         "methods": ["GET", "POST", "OPTIONS"],
-        "allow_headers": ["Content-Type"]
+        "allow_headers": ["Content-Type"],
+        "supports_credentials": True
     }
 })
 
@@ -34,6 +35,21 @@ if os.path.exists(os.path.join(model_dir, 'loan_model.pkl')):
     print("Model loaded successfully!")
 else:
     print("No trained model found. Please train the model first.")
+
+@app.route('/', methods=['GET'])
+def home():
+    """Root endpoint - API information"""
+    return jsonify({
+        'message': 'Loan Prediction API',
+        'version': '1.0',
+        'endpoints': {
+            'health': '/api/health',
+            'predict': '/api/predict',
+            'batch_predict': '/api/predict-batch',
+            'model_info': '/api/model-info',
+            'feature_info': '/api/feature-info'
+        }
+    })
 
 @app.route('/api/health', methods=['GET'])
 def health_check():

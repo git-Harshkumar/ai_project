@@ -47,7 +47,7 @@ function PredictionForm() {
                 Credit_History: parseFloat(formData.Credit_History) || 1
             };
 
-            const response = await fetch(`${API_URL}/predict`, {
+            const response = await fetch(`${API_URL}/api/predict`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

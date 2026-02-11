@@ -13,7 +13,7 @@ function Dashboard() {
 
     const fetchModelInfo = async () => {
         try {
-            const response = await fetch(`${API_URL}/model-info`);
+            const response = await fetch(`${API_URL}/api/model-info`);
             const data = await response.json();
 
             if (data.success) {
