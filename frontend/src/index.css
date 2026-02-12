@@ -41,8 +41,8 @@ body {
   flex: 1;
   color: black;
   font-size: 3rem;
-  font-weight:600;
-  
+  font-weight: 600;
+
 }
 
 .header h1 {
@@ -50,7 +50,7 @@ body {
   font-weight: 600;
   color: black;
   margin-bottom: 0.5rem;
-  font-family:sans-serif;
+  font-family: sans-serif;
 }
 
 .header p {
@@ -67,8 +67,6 @@ body {
   border: none;
   cursor: pointer;
   padding: 8px;
-  position: absolute;
-  left: 0;
   z-index: 1001;
 }
 
@@ -410,6 +408,32 @@ body {
 
   .form-grid {
     grid-template-columns: 1fr;
+  }
+
+  /* Mobile header layout */
+  .header-content {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 1rem;
+  }
+
+  .hamburger-menu {
+    flex-shrink: 0;
+  }
+
+  /* Hide hamburger when sidebar is open */
+  .hamburger-menu.hidden {
+    display: none;
+  }
+
+  .header-text {
+    flex: 1;
+    text-align: center;
+  }
+
+  .header h1 {
+    font-size: 1.5rem;
   }
 
   /* Show hamburger menu on mobile */

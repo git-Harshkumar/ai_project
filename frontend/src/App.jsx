@@ -19,7 +19,7 @@ function App() {
         <header className="header">
           <div className="header-content">
             <button
-              className="hamburger-menu"
+              className={`hamburger-menu ${sidebarOpen ? 'hidden' : ''}`}
               onClick={() => setSidebarOpen(!sidebarOpen)}
               aria-label="Toggle menu"
             >
