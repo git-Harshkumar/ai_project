@@ -13,7 +13,7 @@ frontend_url = os.getenv('FRONTEND_URL', 'http://localhost:5173')
 allowed_origins = [
     frontend_url,
     "http://localhost:5173",
-    "https://ai-project-2-3bsa.onrender.com"  # Add your deployed frontend URL
+    "https://ai-project-2-3bsa.onrender.com/"  # Add your deployed frontend URL
 ]
 CORS(app, resources={
     r"/*": {

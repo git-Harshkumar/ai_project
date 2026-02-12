@@ -26,18 +26,74 @@ body {
 .header {
   text-align: center;
   margin-bottom: 2rem;
+  position: relative;
+}
+
+.header-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  position: relative;
+}
+
+.header-text {
+  flex: 1;
+  color: black;
+  font-size: 3rem;
+  font-weight:600;
+  
 }
 
 .header h1 {
-  font-size: 2rem;
+  font-size: 3rem;
   font-weight: 600;
-  color: #2c3e50;
+  color: black;
   margin-bottom: 0.5rem;
+  font-family:sans-serif;
 }
 
 .header p {
   font-size: 1rem;
   color: #7f8c8d;
+}
+
+/* Hamburger Menu */
+.hamburger-menu {
+  display: none;
+  flex-direction: column;
+  gap: 4px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+  position: absolute;
+  left: 0;
+  z-index: 1001;
+}
+
+.hamburger-menu span {
+  width: 25px;
+  height: 3px;
+  background-color: #2c3e50;
+  border-radius: 2px;
+  transition: all 0.3s ease;
+}
+
+.hamburger-menu:hover span {
+  background-color: #3498db;
+}
+
+/* Sidebar Overlay */
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 999;
 }
 
 /* Glass Card */
@@ -48,15 +104,16 @@ body {
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-/* Tabs */
-.tabs {
+/* Navigation - Desktop Navbar / Mobile Sidebar */
+.navigation {
   display: flex;
   gap: 0.5rem;
   margin-bottom: 1.5rem;
   border-bottom: 2px solid #e0e0e0;
+  transition: transform 0.3s ease;
 }
 
-.tab-button {
+.nav-button {
   padding: 0.75rem 1.5rem;
   background: transparent;
   border: none;
@@ -67,13 +124,21 @@ body {
   border-bottom: 2px solid transparent;
   margin-bottom: -2px;
   transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
-.tab-button:hover {
+.nav-icon {
+  font-size: 1.2rem;
+  display: none;
+}
+
+.nav-button:hover {
   color: #2c3e50;
 }
 
-.tab-button.active {
+.nav-button.active {
   color: #3498db;
   border-bottom-color: #3498db;
 }
@@ -335,6 +400,10 @@ body {
     font-size: 1.5rem;
   }
 
+  .header p {
+    font-size: 0.9rem;
+  }
+
   .glass-card {
     padding: 1rem;
   }
@@ -343,12 +412,75 @@ body {
     grid-template-columns: 1fr;
   }
 
-  .tabs {
-    flex-direction: column;
+  /* Show hamburger menu on mobile */
+  .hamburger-menu {
+    display: flex;
   }
 
-  .tab-button {
+  /* Show overlay when sidebar is open */
+  .sidebar-overlay {
+    display: block;
+  }
+
+  /* Transform navigation into sidebar on mobile */
+  .navigation {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    width: 280px;
+    background: white;
+    flex-direction: column;
+    gap: 0;
+    margin-bottom: 0;
+    border-bottom: none;
+    border-right: 1px solid #e0e0e0;
+    padding: 1rem 0;
+    transform: translateX(-100%);
+    z-index: 1000;
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+    overflow-y: auto;
+  }
+
+  .navigation.sidebar-open {
+    transform: translateX(0);
+  }
+
+  /* Sidebar navigation buttons */
+  .nav-button {
     width: 100%;
     text-align: left;
+    padding: 1rem 1.5rem;
+    border-bottom: none;
+    border-left: 3px solid transparent;
+    margin-bottom: 0;
+    justify-content: flex-start;
+  }
+
+  .nav-button:hover {
+    background: #f8f9fa;
+  }
+
+  .nav-button.active {
+    background: #e3f2fd;
+    border-left-color: #3498db;
+    border-bottom-color: transparent;
+  }
+
+  /* Show icons in sidebar */
+  .nav-icon {
+    display: inline-block;
+  }
+
+  /* Add some spacing at the top for the close area */
+  .navigation::before {
+    content: 'Menu';
+    display: block;
+    padding: 1rem 1.5rem;
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #2c3e50;
+    border-bottom: 2px solid #e0e0e0;
+    margin-bottom: 0.5rem;
   }
 }

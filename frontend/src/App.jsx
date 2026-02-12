@@ -6,35 +6,66 @@ import './index.css';
 
 function App() {
   const [activeTab, setActiveTab] = useState('predict');
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  const handleTabClick = (tab) => {
+    setActiveTab(tab);
+    setSidebarOpen(false); // Close sidebar when a tab is clicked
+  };
 
   return (
     <div className="app">
       <div className="container">
         <header className="header">
-          <h1>Loan Prediction System</h1>
-          <p>AI-Powered Loan Approval Prediction using Machine Learning</p>
+          <div className="header-content">
+            <button
+              className="hamburger-menu"
+              onClick={() => setSidebarOpen(!sidebarOpen)}
+              aria-label="Toggle menu"
+            >
+              <span></span>
+              <span></span>
+              <span></span>
+            </button>
+            <div className="header-text">
+              <h1>Loan Prediction System</h1>
+              <p>AI-Powered Loan Approval Prediction using Machine Learning</p>
+            </div>
+          </div>
         </header>
 
-        <div className="tabs">
+        {/* Overlay for mobile sidebar */}
+        {sidebarOpen && (
+          <div
+            className="sidebar-overlay"
+            onClick={() => setSidebarOpen(false)}
+          ></div>
+        )}
+
+        {/* Navigation - Desktop navbar / Mobile sidebar */}
+        <nav className={`navigation ${sidebarOpen ? 'sidebar-open' : ''}`}>
           <button
-            className={`tab-button ${activeTab === 'predict' ? 'active' : ''}`}
-            onClick={() => setActiveTab('predict')}
+            className={`nav-button ${activeTab === 'predict' ? 'active' : ''}`}
+            onClick={() => handleTabClick('predict')}
           >
+            <span className="nav-icon">📊</span>
             Single Prediction
           </button>
           <button
-            className={`tab-button ${activeTab === 'batch' ? 'active' : ''}`}
-            onClick={() => setActiveTab('batch')}
+            className={`nav-button ${activeTab === 'batch' ? 'active' : ''}`}
+            onClick={() => handleTabClick('batch')}
           >
+            <span className="nav-icon">📁</span>
             Batch Prediction
           </button>
           <button
-            className={`tab-button ${activeTab === 'dashboard' ? 'active' : ''}`}
-            onClick={() => setActiveTab('dashboard')}
+            className={`nav-button ${activeTab === 'dashboard' ? 'active' : ''}`}
+            onClick={() => handleTabClick('dashboard')}
           >
+            <span className="nav-icon">📈</span>
             Model Dashboard
           </button>
-        </div>
+        </nav>
 
         <div className="glass-card">
           {activeTab === 'predict' && <PredictionForm />}
