@@ -2,98 +2,83 @@ import { useState } from 'react';
 import Dashboard from './components/Dashboard';
 import FileUpload from './components/FileUpload';
 import PredictionForm from './components/PredictionForm';
+import SplashScreen from './components/SplashScreen';
 import './index.css';
 
 function App() {
+  const [showSplash, setShowSplash] = useState(true);
   const [activeTab, setActiveTab] = useState('predict');
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const handleTabClick = (tab) => {
     setActiveTab(tab);
-    setSidebarOpen(false); // Close sidebar when a tab is clicked
+    setSidebarOpen(false);
   };
 
+  if (showSplash) {
+    return <SplashScreen onFinish={() => setShowSplash(false)} />;
+  }
+
   return (
-    <div className="app">
-      <div className="container">
-        <header className="header">
-          <div className="header-content">
-            <button
-              className={`hamburger-menu ${sidebarOpen ? 'hidden' : ''}`}
-              onClick={() => setSidebarOpen(!sidebarOpen)}
-              aria-label="Toggle menu"
-            >
-              <span></span>
-              <span></span>
-              <span></span>
-            </button>
-            <div className="header-text">
-              <h1>Loan Prediction System</h1>
-              <p>AI-Powered Loan Approval Prediction using Machine Learning</p>
+    <div className="app-root top-nav-layout">
+      {/* ── Main Content Area ── */}
+      <main className="main-content">
+        <header className="top-bar">
+          <div className="top-bar-brand">
+            <div className="brand-logo">🏦</div>
+            <div className="brand-text">
+              <h2>OpenAI</h2>
+              <p>V2.0.4 Premium</p>
             </div>
           </div>
+
+          <nav className="top-nav">
+            <button
+              className={`top-nav-item ${activeTab === 'predict' ? 'active' : ''}`}
+              onClick={() => setActiveTab('predict')}
+            >
+              <span className="nav-icon">📊</span>
+              <span className="nav-label">Analysis</span>
+            </button>
+            <button
+              className={`top-nav-item ${activeTab === 'batch' ? 'active' : ''}`}
+              onClick={() => setActiveTab('batch')}
+            >
+              <span className="nav-icon">📁</span>
+              <span className="nav-label">Batch</span>
+            </button>
+            <button
+              className={`top-nav-item ${activeTab === 'dashboard' ? 'active' : ''}`}
+              onClick={() => setActiveTab('dashboard')}
+            >
+              <span className="nav-icon">📈</span>
+              <span className="nav-label">Insights</span>
+            </button>
+          </nav>
+
+
         </header>
 
-        {/* Overlay for mobile sidebar */}
-        {sidebarOpen && (
-          <div
-            className="sidebar-overlay"
-            onClick={() => setSidebarOpen(false)}
-          ></div>
-        )}
+        <section className="content-view">
+          <div className="glass-panel">
+            <div className="view-header">
+              <h1 className="view-title">
+                {activeTab === 'predict' ? 'Single Loan Analysis' :
+                  activeTab === 'batch' ? 'Batch Processing' : 'Model Dashboard'}
+              </h1>
+              <p className="view-subtitle">AI-Powered Prediction Engine · Real-time Inference</p>
+            </div>
 
-        {/* Navigation - Desktop navbar / Mobile sidebar */}
-        <nav className={`navigation ${sidebarOpen ? 'sidebar-open' : ''}`}>
-          <button
-            className={`nav-button ${activeTab === 'predict' ? 'active' : ''}`}
-            onClick={() => handleTabClick('predict')}
-          >
-            <span className="nav-icon">📊</span>
-            Single Prediction
-          </button>
-          <button
-            className={`nav-button ${activeTab === 'batch' ? 'active' : ''}`}
-            onClick={() => handleTabClick('batch')}
-          >
-            <span className="nav-icon">📁</span>
-            Batch Prediction
-          </button>
-          <button
-            className={`nav-button ${activeTab === 'dashboard' ? 'active' : ''}`}
-            onClick={() => handleTabClick('dashboard')}
-          >
-            <span className="nav-icon">📈</span>
-            Model Dashboard
-          </button>
-        </nav>
+            {activeTab === 'predict' && <PredictionForm />}
+            {activeTab === 'batch' && <FileUpload />}
+            {activeTab === 'dashboard' && <Dashboard />}
+          </div>
+        </section>
 
-        <div className="glass-card">
-          {activeTab === 'predict' && <PredictionForm />}
-          {activeTab === 'batch' && <FileUpload />}
-          {activeTab === 'dashboard' && <Dashboard />}
-        </div>
-
-        <footer style={{
-          marginTop: '3rem',
-          padding: '1.5rem 0',
-          textAlign: 'center',
-          borderTop: '1px solid #e0e0e0'
-        }}>
-          <p style={{
-            color: '#7f8c8d',
-            fontSize: '0.9rem',
-            marginBottom: '0.5rem'
-          }}>
-            Built with React, Flask, and scikit-learn
-          </p>
-          <p style={{
-            color: '#95a5a6',
-            fontSize: '0.85rem'
-          }}>
-            © 2026 Loan Prediction System
-          </p>
+        <footer className="app-footer">
+          <p>Built with <span className="tech-accent">React · Flask · scikit-learn</span> · © 2026 OpenAI</p>
         </footer>
-      </div>
+      </main>
     </div>
   );
 }

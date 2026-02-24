@@ -4,7 +4,7 @@ const Navbar = () => {
         <nav className="navbar">
             <div className="container" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
                 <a href="/" className="nav-logo">
-                    <span style={{ color: 'var(--accent)' }}>🏦</span> ApexGlobal
+                    <span style={{ color: 'var(--accent)' }}>🏦</span>
                 </a>
 
                 <div className="nav-links">
