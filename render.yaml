@@ -17,11 +17,14 @@ services:
   - type: web
     name: loan-prediction-frontend
     runtime: static
-    buildCommand: cd frontend && npm install && npm run build
-    staticPublishPath: frontend/dist
+    rootDir: frontend
+    buildCommand: npm install && npm run build
+    staticPublishPath: dist
     envVars:
       - key: NODE_VERSION
         value: 18.17.0
+      - key: VITE_API_URL
+        value: https://loan-prediction-api.onrender.com
     routes:
       - type: rewrite
         source: /*
