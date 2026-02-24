@@ -24,7 +24,7 @@ services:
       - key: NODE_VERSION
         value: 18.17.0
       - key: VITE_API_URL
-        value: https://loan-prediction-api.onrender.com
+        value: https://ai-project-1-18yg.onrender.com
     routes:
       - type: rewrite
         source: /*
