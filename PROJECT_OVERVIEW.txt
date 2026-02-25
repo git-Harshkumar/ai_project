@@ -1,0 +1,317 @@
+================================================================================
+PROJECT OVERVIEW — OpenAI Loan Approval Prediction System
+================================================================================
+
+PROJECT NAME: OpenAI — Loan Approval Prediction System
+TYPE: Full-Stack Machine Learning Web Application
+VERSION: V2.0.4 Premium
+GITHUB: https://github.com/Harshkumar/ai_project
+FRONTEND URL: https://ai-project-2-3bsa.onrender.com
+BACKEND URL: https://ai-project-1-18yg.onrender.com
+
+--------------------------------------------------------------------------------
+PROJECT DESCRIPTION
+--------------------------------------------------------------------------------
+A full-stack web application that uses a Random Forest Classifier (scikit-learn)
+to predict whether a loan application will be Approved or Rejected. The app
+supports single predictions (form-based) and bulk batch predictions (CSV upload).
+It also provides a model insights dashboard with accuracy, confusion matrix, and
+feature importance charts.
+
+--------------------------------------------------------------------------------
+TECH STACK
+--------------------------------------------------------------------------------
+Frontend:
+  - React (Vite)
+  - CSS (custom, glassmorphic light theme, no Tailwind)
+  - Google Fonts: Inter, Outfit
+
+Backend:
+  - Python 3.11
+  - Flask (REST API)
+  - Flask-CORS
+  - scikit-learn (Random Forest Classifier)
+  - pandas, numpy, joblib
+  - gunicorn (production server)
+
+Deployment:
+  - Render.com (both frontend as static site and backend as web service)
+  - GitHub for version control
+
+--------------------------------------------------------------------------------
+PROJECT STRUCTURE
+--------------------------------------------------------------------------------
+
+python_project/
+├── backend/
+│   ├── app.py                     # Flask REST API server
+│   ├── model.py                   # LoanPredictor class (training + inference)
+│   ├── build.sh                   # Render build script (legacy)
+│   ├── requirements.txt           # Python dependencies
+│   ├── train_u6lujuX_CVtuZ9i.csv  # Original training dataset
+│   ├── train_preprocessed.csv     # Preprocessed training data
+│   └── models/
+│       ├── loan_model.pkl         # Trained Random Forest model
+│       ├── label_encoders.pkl     # Label encoders for categorical features
+│       ├── scaler.pkl             # Feature scaler
+│       ├── feature_columns.pkl    # List of feature columns
+│       └── model_metrics.pkl      # Saved accuracy, confusion matrix, etc.
+│
+├── frontend/
+│   ├── index.html                 # Entry HTML (title: OpenAI)
+│   ├── vite.config.js             # Vite configuration
+│   ├── package.json
+│   └── src/
+│       ├── main.jsx               # React entry point
+│       ├── App.jsx                # Root layout, top-bar navigation, routing
+│       ├── index.css              # All styles (light theme, glassmorphism)
+│       └── components/
+│           ├── SplashScreen.jsx   # Animated splash/loading screen
+│           ├── PredictionForm.jsx # Single loan prediction form
+│           ├── FileUpload.jsx     # Batch CSV upload and results
+│           └── Dashboard.jsx      # Model insights (accuracy, charts, heatmap)
+│
+├── render.yaml                    # Render deployment configuration
+└── PROJECT_OVERVIEW.txt           # This file
+
+--------------------------------------------------------------------------------
+DATASET
+--------------------------------------------------------------------------------
+File: train_u6lujuX_CVtuZ9i.csv (Analytics Vidhya Loan Prediction dataset)
+Total Records: 614 loan applications
+Total Columns: 13 (12 features + 1 target)
+
+Features (Input):
+  - Loan_ID           : Unique identifier (dropped during training)
+  - Gender            : Male / Female
+  - Married           : Yes / No
+  - Dependents        : 0, 1, 2, 3+
+  - Education         : Graduate / Not Graduate
+  - Self_Employed     : Yes / No
+  - ApplicantIncome   : Monthly income of applicant (numerical)
+  - CoapplicantIncome : Monthly income of co-applicant (numerical)
+  - LoanAmount        : Loan requested in thousands (numerical)
+  - Loan_Amount_Term  : Repayment period in months (numerical)
+  - Credit_History    : 1 = good history, 0 = bad history (binary)
+  - Property_Area     : Urban / Semiurban / Rural
+
+Target (Output):
+  - Loan_Status: Y (Approved) / N (Rejected)
+  - Class distribution: ~69% Approved, ~31% Rejected
+
+Missing Values Handling:
+  - Categorical columns → filled with Mode
+  - Numerical columns   → filled with Median
+
+--------------------------------------------------------------------------------
+ML MODEL WORKFLOW
+--------------------------------------------------------------------------------
+
+Step 1 — Data Collection
+  Raw CSV with 614 applications loaded into pandas DataFrame.
+
+Step 2 — Preprocessing (model.py → preprocess_data())
+  - Drop Loan_ID column
+  - Fill missing values (mode for categorical, median for numerical)
+  - Feature engineering: TotalIncome = ApplicantIncome + CoapplicantIncome
+  - Label encoding: Gender, Married, Education, Self_Employed,
+                    Property_Area, Dependents, Loan_Status → numeric
+
+Step 3 — Model Training (model.py → train())
+  - Train/Test split: 80% train, 20% test
+  - Algorithm: RandomForestClassifier(n_estimators=100, random_state=42)
+  - Each tree trained on a random bootstrap sample
+  - Final prediction = majority vote of all 100 trees
+
+Step 4 — Evaluation (model.py)
+  - Accuracy: ~80%
+  - Metrics saved: accuracy, confusion matrix, classification report,
+                   feature importances
+
+Step 5 — Serialization
+  - loan_model.pkl       → trained Random Forest model
+  - label_encoders.pkl   → for consistent encoding at inference
+  - scaler.pkl           → for feature scaling
+  - feature_columns.pkl  → to enforce correct column order
+  - model_metrics.pkl    → pre-computed metrics for dashboard
+
+Step 6 — Inference (app.py → /api/predict)
+  - Receive JSON input from frontend
+  - Apply same preprocessing steps
+  - model.predict()       → "Approved" / "Rejected"
+  - model.predict_proba() → probability score (0.0 to 1.0)
+  - Return: { prediction, probability, confidence }
+
+--------------------------------------------------------------------------------
+BACKEND API (Flask — app.py)
+--------------------------------------------------------------------------------
+
+Base URL (local):   http://localhost:5000
+Base URL (Render):  https://ai-project-1-18yg.onrender.com
+
+Endpoints:
+  GET  /                    → API info and available endpoints
+  GET  /api/health           → Health check { status, model_loaded }
+  POST /api/predict          → Single loan prediction (JSON body)
+  POST /api/predict-batch    → Bulk prediction (multipart form with CSV file)
+  GET  /api/model-info       → Model metrics (accuracy, confusion matrix, etc.)
+  GET  /api/feature-info     → Feature columns list
+
+Single Predict Request Body (JSON):
+  {
+    "Gender": "Male",
+    "Married": "Yes",
+    "Dependents": "0",
+    "Education": "Graduate",
+    "Self_Employed": "No",
+    "ApplicantIncome": 5000,
+    "CoapplicantIncome": 2000,
+    "LoanAmount": 150,
+    "Loan_Amount_Term": 360,
+    "Credit_History": "1",
+    "Property_Area": "Urban"
+  }
+
+Single Predict Response (JSON):
+  {
+    "success": true,
+    "data": {
+      "prediction": "Approved",
+      "probability": 0.87,
+      "confidence": "High"
+    }
+  }
+
+CORS Configuration:
+  - origins: "*"  (all origins allowed — needed for Render cross-domain)
+  - methods: GET, POST, OPTIONS
+  - allow_headers: Content-Type
+
+--------------------------------------------------------------------------------
+FRONTEND PAGES / TABS
+--------------------------------------------------------------------------------
+
+1. SPLASH SCREEN (SplashScreen.jsx)
+   - Full-page animated loading screen with brand logo
+   - Auto-dismisses after animation completes
+   - Transitions to main app
+
+2. SINGLE ANALYSIS TAB — PredictionForm.jsx
+   - Form with 11 input fields grouped into 3 sections:
+       • Personal Profile: Gender, Married, Dependents, Education, Self_Employed
+       • Financial Status: ApplicantIncome, CoapplicantIncome, LoanAmount, Loan_Amount_Term
+       • Loan Configuration: Credit_History, Property_Area
+   - Submit button: "Generate AI Prediction"
+   - Result card shows: Approved/Rejected, probability bar, confidence level
+   - API: POST /api/predict
+
+3. BATCH TAB — FileUpload.jsx
+   - Drag-and-drop CSV upload zone (or click to browse)
+   - Accepts .csv files with the 11 required feature columns
+   - After upload: stats row (Total, Approved, Rejected, Approval Rate)
+   - Results table with per-applicant probability mini-bars
+   - Export results as CSV button
+   - API: POST /api/predict-batch
+
+4. INSIGHTS TAB — Dashboard.jsx
+   - Fetches model metrics from /api/model-info on mount
+   - Displays: Accuracy %, Confusion Matrix (visual heatmap),
+               Classification Report, Feature Importance bar chart
+   - API: GET /api/model-info
+
+--------------------------------------------------------------------------------
+DESIGN / UI SYSTEM
+--------------------------------------------------------------------------------
+Theme: Light (switched from dark in recent update)
+Background: #f0f4ff (soft indigo-tinged white)
+Primary brand color: #6366f1 (indigo)
+Accent: #06b6d4 (teal/cyan)
+Text: #1e1b4b (deep navy)
+Cards: white with soft indigo-tinted shadows
+
+Key CSS classes:
+  .glass-panel     → main content card (white, frosted, rounded)
+  .top-bar         → sticky header with brand + centered nav
+  .top-nav-item    → navigation tab button (active state = gradient)
+  .batch-drop-zone → drag-and-drop file upload area
+  .result-card     → prediction result display card
+  .form-section    → grouped form fields container
+
+Fonts: Inter (body), Outfit (headings/brand)
+Animations: fadeSlideUp, orbFloat, splashEnter/Exit, pulse-glow
+
+--------------------------------------------------------------------------------
+ENVIRONMENT VARIABLES
+--------------------------------------------------------------------------------
+
+Frontend (.env or Render env):
+  VITE_API_URL = https://ai-project-1-18yg.onrender.com
+
+Backend (Render env):
+  FRONTEND_URL = https://ai-project-2-3bsa.onrender.com
+  FLASK_ENV    = production
+  PORT         = (set automatically by Render)
+  PYTHON_VERSION = 3.11.0
+
+--------------------------------------------------------------------------------
+RENDER DEPLOYMENT CONFIGURATION (render.yaml)
+--------------------------------------------------------------------------------
+
+Backend Service:
+  name: loan-prediction-api
+  runtime: python
+  rootDir: backend
+  buildCommand: pip install -r requirements.txt && (train if no model)
+  startCommand: gunicorn app:app --bind 0.0.0.0:$PORT --workers 2 --timeout 120
+  healthCheckPath: /api/health
+
+Frontend Service:
+  name: loan-prediction-frontend
+  runtime: static
+  rootDir: frontend
+  buildCommand: npm install && npm run build
+  staticPublishPath: dist
+  SPA rewrite: /* → /index.html
+
+--------------------------------------------------------------------------------
+RUNNING LOCALLY
+--------------------------------------------------------------------------------
+
+Backend:
+  1. cd backend
+  2. (activate venv) .venv\Scripts\activate
+  3. pip install -r requirements.txt
+  4. python app.py
+  → Runs on http://localhost:5000
+
+Frontend:
+  1. cd frontend
+  2. npm install
+  3. npm run dev
+  → Runs on http://localhost:5173
+
+--------------------------------------------------------------------------------
+KEY NOTES / KNOWN ISSUES
+--------------------------------------------------------------------------------
+
+1. CORS: Backend uses origins="*" to avoid cross-domain issues on Render.
+   If tightening security, add specific origins instead.
+
+2. Model files: loan_model.pkl (~937KB) is committed to git so Render does
+   not need to retrain on every deploy.
+
+3. build.sh was replaced with inline buildCommand in render.yaml because
+   the .sh file had Windows CRLF line endings that break on Linux (Render).
+
+4. Render free tier spins down after inactivity — first request may be slow
+   (cold start, ~30-60 seconds). This is normal behavior on free tier.
+
+5. The VITE_API_URL must be set at BUILD TIME for Vite (not runtime),
+   so it must be set as a Render environment variable before building.
+
+6. Credit_History is the most influential feature for loan predictions.
+   A value of 1 (good history) strongly increases approval probability.
+
+================================================================================
+END OF PROJECT OVERVIEW
+================================================================================

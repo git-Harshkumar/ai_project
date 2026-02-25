@@ -25,7 +25,9 @@ function App() {
       <main className="main-content">
         <header className="top-bar">
           <div className="top-bar-brand">
-            <div className="brand-logo">🏦</div>
+            <div className="brand-logo">
+              <img src="/logo.png" alt="Logo" style={{ height: '42px', width: 'auto', objectFit: 'contain' }} />
+            </div>
             <div className="brand-text">
               <h2>OpenAI</h2>
               <p>V2.0.4 Premium</p>

@@ -87,7 +87,9 @@ function SplashScreen({ onFinish }) {
                         <div className="splash-brand">
                             <div className="splash-icon-wrap">
                                 <div className="splash-icon-ring" />
-                                <div className="splash-icon">🏦</div>
+                                <div className="splash-icon">
+                                    <img src="/logo.png" alt="Logo" />
+                                </div>
                             </div>
 
                             <div className="splash-text-wrap">

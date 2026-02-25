@@ -4,7 +4,7 @@ const Navbar = () => {
         <nav className="navbar">
             <div className="container" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
                 <a href="/" className="nav-logo">
-                    <span style={{ color: 'var(--accent)' }}>🏦</span>
+                    <img src="/logo.png" alt="Logo" style={{ height: '40px', width: 'auto', objectFit: 'contain', display: 'block' }} />
                 </a>
 
                 <div className="nav-links">

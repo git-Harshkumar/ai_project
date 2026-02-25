@@ -2,186 +2,248 @@ import { useEffect, useState } from 'react';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
+const FEATURE_ICONS = {
+    Credit_History: '💳',
+    ApplicantIncome: '💰',
+    LoanAmount: '🏦',
+    CoapplicantIncome: '👥',
+    Loan_Amount_Term: '📅',
+    TotalIncome: '💵',
+    Property_Area: '🏘️',
+    Education: '🎓',
+    Dependents: '👨‍👩‍👧',
+    Gender: '⚧',
+    Married: '💍',
+    Self_Employed: '🧑‍💼',
+};
+
 function Dashboard() {
     const [modelInfo, setModelInfo] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
-    useEffect(() => {
-        fetchModelInfo();
-    }, []);
+    useEffect(() => { fetchModelInfo(); }, []);
 
     const fetchModelInfo = async () => {
         try {
             const response = await fetch(`${API_URL}/api/model-info`);
             const data = await response.json();
-
-            if (data.success) {
-                setModelInfo(data.metrics);
-            } else {
-                setError(data.error || 'Failed to fetch model information');
-            }
-        } catch (err) {
+            if (data.success) setModelInfo(data.metrics);
+            else setError(data.error || 'Failed to fetch model information');
+        } catch {
             setError('Failed to connect to the server. Make sure the backend is running.');
         } finally {
             setLoading(false);
         }
     };
 
-    if (loading) {
-        return (
-            <div style={{ textAlign: 'center', padding: '4rem' }}>
-                <div className="spinner" style={{ margin: '0 auto' }}></div>
-                <p style={{ marginTop: '1.5rem', color: 'var(--text-secondary)', fontSize: '1rem' }}>
-                    Loading model information...
-                </p>
-            </div>
-        );
-    }
+    if (loading) return (
+        <div className="dash-loading">
+            <div className="dash-loading-spinner"></div>
+            <p>Loading model insights...</p>
+        </div>
+    );
 
-    if (error) {
-        return <div className="error-message">⚠️ {error}</div>;
-    }
+    if (error) return (
+        <div className="dash-error">
+            <span className="dash-error-icon">⚠️</span>
+            <h3>Connection Error</h3>
+            <p>{error}</p>
+            <button className="btn btn-primary" onClick={fetchModelInfo} style={{ marginTop: '1.5rem' }}>
+                Retry
+            </button>
+        </div>
+    );
 
-    if (!modelInfo) {
-        return <div className="error-message">⚠️ No model information available</div>;
-    }
+    if (!modelInfo) return <div className="dash-error">⚠️ No model information available</div>;
+
+    const accuracy = (modelInfo.accuracy * 100).toFixed(1);
+    const roc = modelInfo.roc_auc ? (modelInfo.roc_auc * 100).toFixed(1) : null;
+    const cm = modelInfo.confusion_matrix;
+    const tn = cm?.[0]?.[0], fp = cm?.[0]?.[1], fn = cm?.[1]?.[0], tp = cm?.[1]?.[1];
+    const precision = modelInfo.classification_report?.['1']?.precision;
+    const recall = modelInfo.classification_report?.['1']?.recall;
+    const f1 = modelInfo.classification_report?.['1']?.['f1-score'];
+    const maxImportance = modelInfo.feature_importance?.[0]?.importance || 1;
 
     return (
-        <div className="view-container">
-            <h2 className="section-title">🧠 Model Performance Dashboard</h2>
-            <p className="section-subtitle">
-                Comprehensive metrics and insights about the loan prediction model's behavioral analysis
-            </p>
+        <div className="dash-root">
 
-            <div className="stats-grid">
-                <div className="stat-card">
-                    <div className="stat-label">🤖 Architecture</div>
-                    <div className="stat-value" style={{ fontSize: '1.4rem' }}>
-                        {modelInfo.model_name}
+            {/* ── KPI Hero Row ── */}
+            <div className="dash-kpi-row">
+                <div className="dash-kpi-card primary">
+                    <div className="dash-kpi-icon">🎯</div>
+                    <div className="dash-kpi-body">
+                        <div className="dash-kpi-value">{accuracy}%</div>
+                        <div className="dash-kpi-label">Model Accuracy</div>
+                    </div>
+                    <div className="dash-kpi-ring">
+                        <svg viewBox="0 0 36 36" className="dash-ring-svg">
+                            <circle cx="18" cy="18" r="15.9" fill="none" stroke="rgba(99,102,241,0.15)" strokeWidth="3" />
+                            <circle cx="18" cy="18" r="15.9" fill="none" stroke="#6366f1" strokeWidth="3"
+                                strokeDasharray={`${accuracy} ${100 - accuracy}`} strokeLinecap="round"
+                                transform="rotate(-90 18 18)" />
+                        </svg>
                     </div>
                 </div>
 
-                <div className="stat-card">
-                    <div className="stat-label">🎯 Aggregate Accuracy</div>
-                    <div className="stat-value">{(modelInfo.accuracy * 100).toFixed(1)}%</div>
-                    <div className="progress-bar">
-                        <div className="progress-fill" style={{ width: `${modelInfo.accuracy * 100}%` }}></div>
+                {roc && (
+                    <div className="dash-kpi-card accent">
+                        <div className="dash-kpi-icon">📈</div>
+                        <div className="dash-kpi-body">
+                            <div className="dash-kpi-value">{roc}%</div>
+                            <div className="dash-kpi-label">ROC-AUC Score</div>
+                        </div>
+                        <div className="dash-kpi-ring">
+                            <svg viewBox="0 0 36 36" className="dash-ring-svg">
+                                <circle cx="18" cy="18" r="15.9" fill="none" stroke="rgba(6,182,212,0.15)" strokeWidth="3" />
+                                <circle cx="18" cy="18" r="15.9" fill="none" stroke="#06b6d4" strokeWidth="3"
+                                    strokeDasharray={`${roc} ${100 - roc}`} strokeLinecap="round"
+                                    transform="rotate(-90 18 18)" />
+                            </svg>
+                        </div>
                     </div>
-                </div>
+                )}
 
-                <div className="stat-card">
-                    <div className="stat-label">📈 ROC-AUC Confidence</div>
-                    <div className="stat-value">{(modelInfo.roc_auc * 100).toFixed(1)}%</div>
-                    <div className="progress-bar">
-                        <div className="progress-fill" style={{ width: `${modelInfo.roc_auc * 100}%` }}></div>
+                {precision && (
+                    <div className="dash-kpi-card success">
+                        <div className="dash-kpi-icon">✅</div>
+                        <div className="dash-kpi-body">
+                            <div className="dash-kpi-value">{(precision * 100).toFixed(1)}%</div>
+                            <div className="dash-kpi-label">Precision</div>
+                        </div>
+                    </div>
+                )}
+
+                {recall && (
+                    <div className="dash-kpi-card warning">
+                        <div className="dash-kpi-icon">🔍</div>
+                        <div className="dash-kpi-body">
+                            <div className="dash-kpi-value">{(recall * 100).toFixed(1)}%</div>
+                            <div className="dash-kpi-label">Recall</div>
+                        </div>
+                    </div>
+                )}
+
+                {f1 && (
+                    <div className="dash-kpi-card danger">
+                        <div className="dash-kpi-icon">⚡</div>
+                        <div className="dash-kpi-body">
+                            <div className="dash-kpi-value">{(f1 * 100).toFixed(1)}%</div>
+                            <div className="dash-kpi-label">F1-Score</div>
+                        </div>
+                    </div>
+                )}
+
+                <div className="dash-kpi-card model-name">
+                    <div className="dash-kpi-icon">🤖</div>
+                    <div className="dash-kpi-body">
+                        <div className="dash-kpi-value" style={{ fontSize: '1rem', lineHeight: 1.3 }}>
+                            {modelInfo.model_name || 'Random Forest'}
+                        </div>
+                        <div className="dash-kpi-label">Algorithm</div>
                     </div>
                 </div>
             </div>
 
-            {/* Classification Report */}
-            {modelInfo.classification_report && (
-                <div className="form-section" style={{ marginTop: '3rem' }}>
-                    <div className="form-section-title">📊 Precision & Recall Ledger</div>
-                    <p style={{ fontSize: '0.85rem', color: 'var(--text-tertiary)', marginBottom: '1.5rem' }}>
-                        Detailed statistical report on the model's classification capabilities for different classes
-                    </p>
-                    <div className="table-wrap">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Target Class</th>
-                                    <th style={{ textAlign: 'center' }}>Precision</th>
-                                    <th style={{ textAlign: 'center' }}>Recall</th>
-                                    <th style={{ textAlign: 'center' }}>F1-Score</th>
-                                    <th style={{ textAlign: 'center' }}>Data Points</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {Object.entries(modelInfo.classification_report)
-                                    .filter(([key]) => ['0', '1'].includes(key))
-                                    .map(([className, metrics]) => (
-                                        <tr key={className}>
-                                            <td style={{ fontWeight: '700', color: 'var(--text-secondary)' }}>
-                                                {className === '0' ? '❌ Rejected' : '✅ Approved'}
-                                            </td>
-                                            <td style={{ textAlign: 'center' }}>{(metrics.precision * 100).toFixed(1)}%</td>
-                                            <td style={{ textAlign: 'center' }}>{(metrics.recall * 100).toFixed(1)}%</td>
-                                            <td style={{ textAlign: 'center', fontWeight: '700', color: 'var(--primary-light)' }}>
-                                                {(metrics['f1-score'] * 100).toFixed(1)}%
-                                            </td>
-                                            <td style={{ textAlign: 'center', color: 'var(--text-tertiary)' }}>{metrics.support} pts</td>
-                                        </tr>
-                                    ))}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            )}
+            {/* ── Bottom Grid: Confusion Matrix + Feature Importance ── */}
+            <div className="dash-grid">
 
-            <div className="form-grid" style={{ marginTop: '3rem' }}>
-                {/* Confusion Matrix Heatmap */}
-                {modelInfo.confusion_matrix && (
-                    <div className="form-section">
-                        <div className="form-section-title">📍 Confusion Matrix Heatmap</div>
-                        <p style={{ fontSize: '0.85rem', color: 'var(--text-tertiary)', marginBottom: '1rem' }}>
-                            Visualizing true vs false classifications
-                        </p>
-                        <div style={{
-                            display: 'grid',
-                            gridTemplateColumns: 'repeat(2, 1fr)',
-                            gap: '1rem',
-                            marginTop: '1rem'
-                        }}>
-                            <div className="heatmap-cell" style={{ background: 'rgba(16, 185, 129, 0.15)' }}>
-                                <span className="heatmap-value">{modelInfo.confusion_matrix[0][0]}</span>
-                                <span className="heatmap-label">True Approved</span>
-                            </div>
-                            <div className="heatmap-cell" style={{ background: 'rgba(239, 68, 68, 0.05)' }}>
-                                <span className="heatmap-value">{modelInfo.confusion_matrix[0][1]}</span>
-                                <span className="heatmap-label">False Rejected</span>
-                            </div>
-                            <div className="heatmap-cell" style={{ background: 'rgba(239, 68, 68, 0.05)' }}>
-                                <span className="heatmap-value">{modelInfo.confusion_matrix[1][0]}</span>
-                                <span className="heatmap-label">False Approved</span>
-                            </div>
-                            <div className="heatmap-cell" style={{ background: 'rgba(16, 185, 129, 0.15)' }}>
-                                <span className="heatmap-value">{modelInfo.confusion_matrix[1][1]}</span>
-                                <span className="heatmap-label">True Rejected</span>
+                {/* Confusion Matrix */}
+                {cm && (
+                    <div className="dash-card">
+                        <div className="dash-card-header">
+                            <span className="dash-card-icon">📍</span>
+                            <div>
+                                <h3 className="dash-card-title">Confusion Matrix</h3>
+                                <p className="dash-card-sub">Predicted vs actual outcomes</p>
                             </div>
                         </div>
+
+                        <div className="dash-matrix">
+                            <div className="dash-matrix-labels">
+                                <span></span>
+                                <span className="dash-matrix-col-label">Pred: Approved</span>
+                                <span className="dash-matrix-col-label">Pred: Rejected</span>
+                            </div>
+                            <div className="dash-matrix-row">
+                                <span className="dash-matrix-row-label">Act: Approved</span>
+                                <div className="dash-matrix-cell green">
+                                    <span className="dash-matrix-val">{tn}</span>
+                                    <span className="dash-matrix-tag">True Positive</span>
+                                </div>
+                                <div className="dash-matrix-cell red-light">
+                                    <span className="dash-matrix-val">{fp}</span>
+                                    <span className="dash-matrix-tag">False Negative</span>
+                                </div>
+                            </div>
+                            <div className="dash-matrix-row">
+                                <span className="dash-matrix-row-label">Act: Rejected</span>
+                                <div className="dash-matrix-cell red-light">
+                                    <span className="dash-matrix-val">{fn}</span>
+                                    <span className="dash-matrix-tag">False Positive</span>
+                                </div>
+                                <div className="dash-matrix-cell green">
+                                    <span className="dash-matrix-val">{tp}</span>
+                                    <span className="dash-matrix-tag">True Negative</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Class breakdown */}
+                        {modelInfo.classification_report && (
+                            <div className="dash-class-row">
+                                {[['0', '❌ Rejected'], ['1', '✅ Approved']].map(([key, label]) => {
+                                    const m = modelInfo.classification_report[key];
+                                    if (!m) return null;
+                                    return (
+                                        <div key={key} className="dash-class-item">
+                                            <div className="dash-class-label">{label}</div>
+                                            <div className="dash-class-stats">
+                                                <span>P: <b>{(m.precision * 100).toFixed(0)}%</b></span>
+                                                <span>R: <b>{(m.recall * 100).toFixed(0)}%</b></span>
+                                                <span>F1: <b>{(m['f1-score'] * 100).toFixed(0)}%</b></span>
+                                            </div>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        )}
                     </div>
                 )}
 
                 {/* Feature Importance */}
                 {modelInfo.feature_importance && (
-                    <div className="form-section">
-                        <div className="form-section-title">⚡ Feature Influence Ranking</div>
-                        <p style={{ fontSize: '0.85rem', color: 'var(--text-tertiary)', marginBottom: '1.25rem' }}>
-                            Key factors impacting decisions
-                        </p>
-                        <div style={{ display: 'grid', gap: '1.25rem' }}>
-                            {modelInfo.feature_importance.slice(0, 6).map((item, idx) => (
-                                <div key={idx}>
-                                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem', alignItems: 'center' }}>
-                                        <span style={{ fontWeight: '600', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
-                                            {item.feature}
-                                        </span>
-                                        <span style={{ fontWeight: '700', fontSize: '0.85rem', color: 'var(--primary-light)' }}>
-                                            {(item.importance * 100).toFixed(1)}%
-                                        </span>
+                    <div className="dash-card">
+                        <div className="dash-card-header">
+                            <span className="dash-card-icon">⚡</span>
+                            <div>
+                                <h3 className="dash-card-title">Feature Importance</h3>
+                                <p className="dash-card-sub">Top predictors ranked by influence</p>
+                            </div>
+                        </div>
+
+                        <div className="dash-features">
+                            {modelInfo.feature_importance.slice(0, 8).map((item, idx) => {
+                                const pct = (item.importance / maxImportance) * 100;
+                                const valPct = (item.importance * 100).toFixed(1);
+                                const colors = ['#6366f1', '#06b6d4', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#14b8a6'];
+                                return (
+                                    <div key={idx} className="dash-feature-row">
+                                        <div className="dash-feature-left">
+                                            <span className="dash-feature-rank">#{idx + 1}</span>
+                                            <span className="dash-feature-icon">{FEATURE_ICONS[item.feature] || '📊'}</span>
+                                            <span className="dash-feature-name">{item.feature}</span>
+                                        </div>
+                                        <div className="dash-feature-bar-wrap">
+                                            <div className="dash-feature-bar">
+                                                <div className="dash-feature-fill" style={{ width: `${pct}%`, background: colors[idx] }} />
+                                            </div>
+                                            <span className="dash-feature-pct">{valPct}%</span>
+                                        </div>
                                     </div>
-                                    <div className="progress-bar" style={{ height: '6px' }}>
-                                        <div
-                                            className="progress-fill"
-                                            style={{
-                                                width: `${item.importance * 100}%`,
-                                                background: `linear-gradient(90deg, var(--primary) ${100 - (item.importance * 100)}%, var(--accent) 100%)`
-                                            }}
-                                        ></div>
-                                    </div>
-                                </div>
-                            ))}
+                                );
+                            })}
                         </div>
                     </div>
                 )}
