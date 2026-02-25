@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 
-const DURATION = 4000; // ms visible before exit animation starts
+const DURATION = 2000; // ms visible before exit animation starts
 
 function SplashScreen({ onFinish }) {
     const [progress, setProgress] = useState(0);
@@ -115,9 +115,13 @@ function SplashScreen({ onFinish }) {
 
                         {/* Loading dynamics */}
                         <div className="splash-footer">
+                            <div className="splash-counter-hero">
+                                <div className="splash-counter-icon-badge">⚡</div>
+                                <span className="splash-counter-number">{Math.round(progress)}</span>
+                                <span className="splash-counter-unit">%</span>
+                            </div>
                             <div className="splash-loading-meta">
                                 <span className="splash-loading-label">Initializing Neural Networks</span>
-                                <span className="splash-loading-percent">{Math.round(progress)}%</span>
                             </div>
                             <div className="splash-progress-track">
                                 <div className="splash-progress-fill" style={{ width: `${progress}%` }} />

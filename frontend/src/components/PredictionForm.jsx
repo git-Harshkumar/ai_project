@@ -252,7 +252,7 @@ function PredictionForm() {
             {result && (
                 <div className={`result-card ${isApproved ? 'approved' : 'rejected'}`}>
                     <div className="result-header">
-                        <div className="result-icon">{isApproved ? '✅' : '❌'}</div>
+                        {/* <div className="result-icon">{isApproved ? '✅' : ''}</div> */}
                         <div>
                             <div className={`result-title ${isApproved ? 'approved' : 'rejected'}`}>
                                 Loan {result.prediction}
